@@ -11,7 +11,7 @@ interface ConversationListProps {
 
 export function ConversationList({ conversations, selectedConversationId, onSelectConversation }: ConversationListProps) {
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col w-full">
       <div className="p-4 border-b">
         <h2 className="text-xl font-bold">Messages</h2>
         <div className="mt-2">

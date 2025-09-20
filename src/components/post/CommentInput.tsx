@@ -15,11 +15,11 @@ export function CommentInput({ currentUser, newComment, setNewComment, onSubmit 
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex items-center space-x-3 mt-3">
+    <form onSubmit={onSubmit} className="flex items-center space-x-2 md:space-x-3 mt-2 md:mt-3">
         <img
             src={currentUser.avatar || "/placeholder.svg"}
             alt={currentUser.username}
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover"
         />
         <div className="flex-1 flex">
             <input
@@ -37,7 +37,7 @@ export function CommentInput({ currentUser, newComment, setNewComment, onSubmit 
             {newComment.trim() && (
                 <button
                     type="submit"
-                    className="text-blue-500 text-sm font-semibold hover:text-blue-600 transition-colors ml-2"
+                    className="text-blue-500 text-xs md:text-sm font-semibold hover:text-blue-600 transition-colors ml-1 md:ml-2"
                 >
                     Post
                 </button>

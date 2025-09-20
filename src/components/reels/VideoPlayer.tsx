@@ -13,6 +13,7 @@ interface VideoPlayerProps {
   onPlayPause: () => void;
   onVideoLoad: () => void;
   onVideoError: () => void;
+  shouldLoad?: boolean;
 }
 
 export function VideoPlayer({ 
@@ -22,13 +23,14 @@ export function VideoPlayer({
   isVideoLoaded, 
   onPlayPause, 
   onVideoLoad, 
-  onVideoError 
+  onVideoError,
+  shouldLoad = true
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Auto-play/pause based on active state
   useEffect(() => {
-    if (!videoRef.current || !isVideoLoaded) return;
+    if (!videoRef.current || !isVideoLoaded || !shouldLoad) return;
 
     const video = videoRef.current;
 
@@ -42,12 +44,12 @@ export function VideoPlayer({
     } else {
       video.pause();
     }
-  }, [isActive, isVideoLoaded]);
+  }, [isActive, isVideoLoaded, shouldLoad]);
 
   // Handle visibility change
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!videoRef.current || !isVideoLoaded) return;
+      if (!videoRef.current || !isVideoLoaded || !shouldLoad) return;
 
       if (document.hidden) {
         videoRef.current.pause();
@@ -61,7 +63,26 @@ export function VideoPlayer({
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isActive, isVideoLoaded]);
+  }, [isActive, isVideoLoaded, shouldLoad]);
+
+  // Reset video when shouldLoad changes to false
+  useEffect(() => {
+    if (!shouldLoad && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [shouldLoad]);
+
+  if (!shouldLoad) {
+    return (
+      <div 
+        className="relative w-full h-full flex items-center justify-center cursor-pointer bg-gray-900"
+        onClick={onPlayPause}
+      >
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div 

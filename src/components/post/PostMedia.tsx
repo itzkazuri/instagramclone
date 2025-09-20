@@ -45,29 +45,63 @@ export function PostMedia({ media, currentMediaIndex, onNext, onPrev }: PostMedi
     }
   };
 
+  // Handle swipe gestures for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touchStartX = e.touches[0].clientX;
+    
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      const touchMoveX = moveEvent.touches[0].clientX;
+      const diff = touchStartX - touchMoveX;
+      
+      // Minimum swipe distance
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          onNext(); // Swipe left
+        } else {
+          onPrev(); // Swipe right
+        }
+        
+        // Remove event listeners after swipe
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+    
+    const handleTouchEnd = () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+    
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleTouchEnd);
+  };
+
   return (
-    <div className="flex-1 bg-black relative flex items-center justify-center">
+    <div 
+      className="flex-1 bg-black relative flex items-center justify-center overflow-hidden"
+      onTouchStart={handleTouchStart}
+    >
       {/* Media Navigation */}
       {media.length > 1 && (
         <>
           <button
             onClick={onPrev}
-            className="absolute left-4 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2"
+            className="absolute left-2 md:left-4 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-1.5 md:p-2"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={16} className="md:w-5 md:h-5" />
           </button>
           <button
             onClick={onNext}
-            className="absolute right-4 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2"
+            className="absolute right-2 md:right-4 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-1.5 md:p-2"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={16} className="md:w-5 md:h-5" />
           </button>
         </>
       )}
 
       {/* Media Content */}
       {isVideo ? (
-        <div className="relative max-w-full max-h-full">
+        <div className="relative w-full h-full flex items-center justify-center">
           <video
             ref={videoRef}
             src={currentMedia.url}
@@ -78,18 +112,18 @@ export function PostMedia({ media, currentMediaIndex, onNext, onPrev }: PostMedi
             onPause={() => setIsVideoPlaying(false)}
             onClick={toggleVideoPlay}
           />
-          <div className="absolute bottom-4 left-4 flex space-x-2">
+          <div className="absolute bottom-2 left-2 flex space-x-1">
             <button
               onClick={toggleVideoPlay}
-              className="text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 transition-all"
+              className="text-white bg-black bg-opacity-50 rounded-full p-1.5 hover:bg-opacity-70 transition-all"
             >
-              {isVideoPlaying ? <Pause size={20} /> : <Play size={20} />}
+              {isVideoPlaying ? <Pause size={16} /> : <Play size={16} />}
             </button>
             <button
               onClick={toggleVideoMute}
-              className="text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 transition-all"
+              className="text-white bg-black bg-opacity-50 rounded-full p-1.5 hover:bg-opacity-70 transition-all"
             >
-              {isVideoMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+              {isVideoMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
           </div>
         </div>
@@ -103,11 +137,11 @@ export function PostMedia({ media, currentMediaIndex, onNext, onPrev }: PostMedi
 
       {/* Media Indicators */}
       {media.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
           {media.map((_, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full transition-all ${index === currentMediaIndex ? "bg-white" : "bg-gray-400"}`}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentMediaIndex ? "bg-white" : "bg-gray-400"}`}
             />
           ))}
         </div>

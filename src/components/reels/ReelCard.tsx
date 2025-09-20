@@ -6,20 +6,23 @@ import { Reel } from '@/lib/dummy-data';
 import { VideoPlayer } from './VideoPlayer';
 import { VideoInfo } from './VideoInfo';
 import { ActionButtons } from './ActionButtons';
+import { ReportMenu } from './ReportMenu';
 
 interface ReelCardProps {
   reel: Reel;
   isActive: boolean;
-  onLoadedData?: () => void;
+  onCommentClick?: () => void;
+  shouldLoad?: boolean;
 }
 
-export function ReelCard({ reel, isActive, onLoadedData }: ReelCardProps) {
+export function ReelCard({ reel, isActive, onCommentClick, shouldLoad = true }: ReelCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [likeCount, setLikeCount] = useState(reel.likes);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isReportMenuOpen, setIsReportMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Format count numbers
@@ -35,8 +38,7 @@ export function ReelCard({ reel, isActive, onLoadedData }: ReelCardProps) {
   // Handle video loading
   const handleVideoLoad = useCallback(() => {
     setIsVideoLoaded(true);
-    onLoadedData?.();
-  }, [onLoadedData]);
+  }, []);
 
   // Handle video error
   const handleVideoError = useCallback(() => {
@@ -93,20 +95,40 @@ export function ReelCard({ reel, isActive, onLoadedData }: ReelCardProps) {
 
   const handleComment = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    // Handle comment functionality
+    if (onCommentClick) {
+      onCommentClick();
+    }
+  }, [onCommentClick]);
+
+  const handleReport = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsReportMenuOpen(true);
   }, []);
 
+  const handleReportSubmit = useCallback(() => {
+    // Handle report submission
+    console.log(`Report submitted for reel ${reel.id}`);
+    setIsReportMenuOpen(false);
+  }, [reel.id]);
+
   return (
-    <div className="relative w-full h-screen snap-start bg-black overflow-hidden">
-      <VideoPlayer
-        src={reel.videoUrl}
-        isActive={isActive}
-        isPlaying={isPlaying}
-        isVideoLoaded={isVideoLoaded}
-        onPlayPause={handlePlayPause}
-        onVideoLoad={handleVideoLoad}
-        onVideoError={handleVideoError}
-      />
+    <div className="relative w-full h-full bg-black overflow-hidden">
+      {shouldLoad ? (
+        <VideoPlayer
+          src={reel.videoUrl}
+          isActive={isActive}
+          isPlaying={isPlaying}
+          isVideoLoaded={isVideoLoaded}
+          onPlayPause={handlePlayPause}
+          onVideoLoad={handleVideoLoad}
+          onVideoError={handleVideoError}
+          shouldLoad={shouldLoad}
+        />
+      ) : (
+        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      )}
       
       <VideoInfo
         reel={reel}
@@ -126,6 +148,7 @@ export function ReelCard({ reel, isActive, onLoadedData }: ReelCardProps) {
         onShare={handleShare}
         onBookmark={handleBookmark}
         onFollow={handleFollow}
+        onReport={handleReport}
         formatCount={formatCount}
       />
       
@@ -135,6 +158,13 @@ export function ReelCard({ reel, isActive, onLoadedData }: ReelCardProps) {
         className="absolute top-0 left-0 right-0 h-16 z-10"
         aria-label={`View reel by ${reel.user.name}`}
       ></Link>
+      
+      {/* Report menu */}
+      <ReportMenu
+        isOpen={isReportMenuOpen}
+        onClose={() => setIsReportMenuOpen(false)}
+        onReport={handleReportSubmit}
+      />
     </div>
   );
 }

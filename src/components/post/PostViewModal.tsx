@@ -2,12 +2,7 @@
 
 import { useState } from "react"
 import { X } from "lucide-react"
-import { PostHeader } from "./PostHeader"
-import { PostMedia } from "./PostMedia"
-import { PostContent } from "./PostContent"
-import { PostActions } from "./PostActions"
-import { PostComments } from "./PostComments"
-import { CommentInput } from "./CommentInput"
+import { PostMedia } from "@/components/post/PostMedia"
 import { Post, User } from "@/types"
 
 interface PostViewModalProps {
@@ -19,53 +14,8 @@ interface PostViewModalProps {
 
 export const PostViewModal = ({ isOpen, onClose, post, currentUser }: PostViewModalProps) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
-  const [isLiked, setIsLiked] = useState(post.isLiked)
-  const [isSaved, setIsSaved] = useState(post.isSaved)
-  const [likesCount, setLikesCount] = useState(post.likesCount)
-  const [comments, setComments] = useState(post.comments)
-  const [newComment, setNewComment] = useState("")
-  const [isFollowing, setIsFollowing] = useState(false) // Dummy state
 
   if (!isOpen) return null
-
-  const handleLike = async () => {
-    setIsLiked(!isLiked)
-    setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1))
-    // API call would go here
-  }
-
-  const handleSave = async () => {
-    setIsSaved(!isSaved)
-    // API call would go here
-  }
-
-  const handleFollowToggle = () => {
-    setIsFollowing(prev => !prev)
-    // API call would go here later
-  }
-
-  const handleComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newComment.trim()) return
-
-    const comment = {
-      id: Date.now().toString(),
-      author: {
-        id: currentUser.id, // Add id to the author object
-        username: currentUser.username,
-        cosplayerName: currentUser.cosplayerName || currentUser.username,
-        avatar: currentUser.avatar || "/api/placeholder/32/32",
-      },
-      content: newComment.trim(),
-      createdAt: new Date().toISOString(),
-      likesCount: 0,
-      isLiked: false,
-    }
-
-    setComments((prev) => [...prev, comment])
-    setNewComment("")
-    // API call would go here
-  }
 
   const nextMedia = () => {
     setCurrentMediaIndex((prev) => (prev + 1) % post.media.length)
@@ -75,59 +25,86 @@ export const PostViewModal = ({ isOpen, onClose, post, currentUser }: PostViewMo
     setCurrentMediaIndex((prev) => (prev - 1 + post.media.length) % post.media.length)
   }
 
-  const isCurrentUser = post?.author?.id === currentUser?.id;
-
   return (
-    <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[95vh] flex overflow-hidden">
+    <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] flex overflow-hidden">
         {/* Media Section */}
-        <PostMedia
-          media={post.media}
-          currentMediaIndex={currentMediaIndex}
-          onNext={nextMedia}
-          onPrev={prevMedia}
-        />
+        <div className="w-2/3 flex-1">
+          <PostMedia
+            media={post.media}
+            currentMediaIndex={currentMediaIndex}
+            onNext={nextMedia}
+            onPrev={prevMedia}
+          />
+        </div>
 
         {/* Content Section */}
-        <div className="w-80 flex flex-col">
+        <div className="w-1/3 flex flex-col">
           {/* Header */}
-          <PostHeader
-            author={post.author}
-            onClose={onClose}
-            isFollowing={isFollowing}
-            onFollowToggle={handleFollowToggle}
-            isCurrentUser={isCurrentUser}
-          />
-
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto">
-            <PostContent
-              content={post.content}
-              character={post.character}
-              series={post.series}
-              costume={post.costume}
-              createdAt={post.createdAt}
-            />
-
-            <PostComments comments={comments} />
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center space-x-3">
+              <img
+                src={post.author.avatar || "/placeholder.svg"}
+                alt={post.author.username}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <div>
+                <div className="font-semibold">{post.author.cosplayerName || post.author.username}</div>
+                <div className="text-gray-500 text-sm">@{post.author.username}</div>
+              </div>
+            </div>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
           </div>
 
-          {/* Actions */}
-          <div className="p-4 border-t">
-            <PostActions
-              isLiked={isLiked}
-              isSaved={isSaved}
-              likesCount={likesCount}
-              onLike={handleLike}
-              onSave={handleSave}
-            />
-
-            <CommentInput
-              currentUser={currentUser}
-              newComment={newComment}
-              setNewComment={setNewComment}
-              onSubmit={handleComment}
-            />
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="mb-4">
+              <p className="text-gray-800">{post.content}</p>
+            </div>
+            
+            {post.character && (
+              <div className="bg-gray-100 rounded-lg p-3 mb-4">
+                <div className="font-semibold mb-1">Character: {post.character}</div>
+                {post.series && <div className="text-sm">Series: {post.series}</div>}
+                {post.costume && <div className="text-sm">Costume: {post.costume}</div>}
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between text-gray-500 text-sm mb-4">
+              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+              <span>{post.likesCount} likes</span>
+            </div>
+            
+            <div className="border-t pt-4">
+              <h3 className="font-semibold mb-2">Comments ({post.comments.length})</h3>
+              <div className="space-y-4">
+                {post.comments.map((comment) => (
+                  <div key={comment.id} className="flex space-x-3">
+                    <img
+                      src={comment.author.avatar || "/placeholder.svg"}
+                      alt={comment.author.username}
+                      className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                    />
+                    <div className="flex-1">
+                      <div className="bg-gray-100 rounded-lg p-3">
+                        <div className="font-semibold text-sm">{comment.author.cosplayerName || comment.author.username}</div>
+                        <p className="text-gray-800 text-sm">{comment.content}</p>
+                      </div>
+                      <div className="flex items-center space-x-3 mt-1 text-gray-500 text-xs">
+                        <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
+                        <button className="hover:text-red-500">Like</button>
+                        <button>Reply</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

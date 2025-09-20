@@ -31,20 +31,20 @@ export function PostActions({ isLiked, isSaved, likesCount = 0, onLike, onSave }
   return (
     <>
         <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 md:space-x-4">
             <button
                 onClick={onLike}
                 className={`transition-colors ${isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
             >
-                <Heart size={24} fill={isLiked ? "currentColor" : "none"} />
+                <Heart size={20} className="md:w-6 md:h-6" fill={isLiked ? "currentColor" : "none"}/>
             </button>
             <button className="text-gray-600 hover:text-blue-500 transition-colors">
-                <MessageCircle size={24} />
+                <MessageCircle size={20} className="md:w-6 md:h-6" />
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="text-gray-600 hover:text-blue-500 transition-colors">
-                  <Send size={24} />
+                  <Send size={20} className="md:w-6 md:h-6" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -61,7 +61,7 @@ export function PostActions({ isLiked, isSaved, likesCount = 0, onLike, onSave }
                 onClick={onSave}
                 className={`transition-colors ${isSaved ? "text-yellow-500" : "text-gray-600 hover:text-yellow-500"}`}
             >
-            <Bookmark size={24} fill={isSaved ? "currentColor" : "none"} />
+            <Bookmark size={20} className="md:w-6 md:h-6" fill={isSaved ? "currentColor" : "none"}/>
             </button>
         </div>
         <div className="text-sm font-semibold">{likesCount.toLocaleString()} likes</div>

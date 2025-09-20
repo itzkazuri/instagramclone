@@ -20,18 +20,18 @@ interface PostContentProps {
 
 export function PostContent({ content, character, series, costume, createdAt }: PostContentProps) {
     return (
-        <div className="p-4 border-b">
-            <p className="text-sm mb-3">{content}</p>
+        <div className="p-3 md:p-4 border-b">
+            <p className="text-xs md:text-sm mb-2 md:mb-3">{content}</p>
 
             {(character || series || costume) && (
-                <div className="bg-gray-50 rounded-lg p-3 space-y-1 text-xs">
+                <div className="bg-gray-50 rounded-lg p-2 md:p-3 space-y-1 text-[10px] md:text-xs">
                     {character && <div><span className="font-semibold">Character:</span> {character}</div>}
                     {series && <div><span className="font-semibold">Series:</span> {series}</div>}
                     {costume && <div><span className="font-semibold">Costume:</span> {costume}</div>}
                 </div>
             )}
 
-            <div className="text-xs text-gray-500 mt-2 uppercase">{formatTime(createdAt)} ago</div>
+            <div className="text-[10px] md:text-xs text-gray-500 mt-2 uppercase">{formatTime(createdAt)} ago</div>
         </div>
     );
 }

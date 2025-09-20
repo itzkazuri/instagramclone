@@ -55,14 +55,16 @@ export async function middleware(request: NextRequest) {
   
   // Untuk route user yang dilindungi, cek token user
   if (isProtectedRoute && !isAdminRoute) {
-    const userToken = request.headers.get('authorization')?.replace('Bearer ', '');
+    const authHeader = request.headers.get('authorization');
     
-    if (!userToken) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }), 
+        JSON.stringify({ error: 'Missing or invalid authorization header' }), 
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
+    
+    const userToken = authHeader.substring(7);
     
     // Verifikasi token dengan JWT
     const decoded = await verifyToken(userToken);
@@ -73,6 +75,17 @@ export async function middleware(request: NextRequest) {
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
+    
+    // Attach user info to request headers for use in API routes
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-user-id', decoded.userId);
+    requestHeaders.set('x-user-role', decoded.role);
+    
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
   
   return NextResponse.next();

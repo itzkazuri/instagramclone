@@ -8,7 +8,8 @@ import {
   Send, 
   Bookmark,
   MoreHorizontal,
-  UserPlus
+  UserPlus,
+  Flag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Reel } from '@/lib/dummy-data';
@@ -25,6 +26,7 @@ interface ActionButtonsProps {
   onShare: (e: React.MouseEvent) => void;
   onBookmark: (e: React.MouseEvent) => void;
   onFollow: (e: React.MouseEvent) => void;
+  onReport?: (e: React.MouseEvent) => void;
   formatCount: (count: number) => string;
 }
 
@@ -40,6 +42,7 @@ export function ActionButtons({
   onShare, 
   onBookmark, 
   onFollow,
+  onReport,
   formatCount
 }: ActionButtonsProps) {
   return (
@@ -108,6 +111,18 @@ export function ActionButtons({
           )} 
         />
       </Button>
+
+      {/* Report Button */}
+      {onReport && (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 border border-white/20"
+          onClick={onReport}
+        >
+          <Flag className="w-7 h-7 text-white" />
+        </Button>
+      )}
 
       {/* More Options */}
       <Button

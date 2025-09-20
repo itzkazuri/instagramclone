@@ -76,10 +76,10 @@ export const mobileNavItems: NavItem[] = [
     icon: Compass,
     url: "/explore",
   },
-    {
-    title: "Search",
-    icon: Search,
-    url: "/search",
+  {
+    title: "Reels",
+    icon: Film,
+    url: "/reels",
   },
   {
     title: "Create",
